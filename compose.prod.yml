@@ -1,0 +1,16 @@
+name: licest
+
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: ./api
+      target: production
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public"
+    ports:
+      - ${API_PORT}:3000
+    depends_on:
+      db:
+        condition: service_healthy
