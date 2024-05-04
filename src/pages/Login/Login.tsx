@@ -1,4 +1,5 @@
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUser } from '../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Licest from '/licest.svg';
@@ -17,6 +18,7 @@ import {
 function Login() {
   const navigate = useNavigate();
   const { setToken } = useAuth();
+  const { setUser } = useUser();
 
   const [alert, setAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -49,6 +51,13 @@ function Login() {
           return;
         }
 
+        console.log(data);
+        setUser({
+          id: data.id,
+          tag: data.tag,
+          email: data.email,
+          name: data.name,
+        });
         setToken(data.access_token);
         navigate('/', { replace: true });
       })

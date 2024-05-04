@@ -1,18 +1,11 @@
-import { useAuth } from '../../context/AuthContext';
+import ButtonLogout from './ButtonLogout';
 import {
-  Button,
   Container,
   CssBaseline,
   Grid,
 } from '@mui/material';
 
-
 function Home() {
-  const { setToken } = useAuth();
-  function handleLogout() {
-    setToken();
-  }
-
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -24,14 +17,7 @@ function Home() {
         justifyContent="center"
         style={{ minHeight: '100vh' }}
       >
-        <Button
-          href="/"
-          variant="contained"
-          color="primary"
-          onClick={handleLogout}
-        >
-        Logout
-        </Button>
+        <ButtonLogout />
       </Grid>
     </Container>
   );
