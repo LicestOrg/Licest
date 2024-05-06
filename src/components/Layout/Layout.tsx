@@ -17,6 +17,7 @@ import {
   Box,
   TextField,
   Alert,
+  MenuItem,
 } from '@mui/material';
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -72,6 +73,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({
         ownerId: user?.id,
         title: data.title,
+        type: data.type,
       })
     })
       .then((response) => response.json())
@@ -146,6 +148,21 @@ function Layout({ children }: { children: React.ReactNode }) {
             <Typography variant="h6" id="modal-modal-title">
               Add Page
             </Typography>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="type"
+              label="Type"
+              name="type"
+              autoComplete="type"
+              defaultValue="TABLE"
+              select
+            >
+              <MenuItem value="TABLE">Table</MenuItem>
+              <MenuItem value="GALLERY">Gallery</MenuItem>
+              <MenuItem value="TODO">Todo</MenuItem>
+            </TextField>
             <TextField
               margin="normal"
               required
