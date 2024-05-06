@@ -46,6 +46,14 @@ function Home() {
           { field: 'email', headerName: 'Email', width: 200 },
           { field: 'updatedAt', headerName: 'Last Login', width: 200 },
         ]}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 10,
+            },
+          },
+        }}
+        pageSizeOptions={[5, 10, 25, 50, 100]}
       />
     </>
   );

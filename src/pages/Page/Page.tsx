@@ -4,6 +4,7 @@ import ElementType from '../../types/ElementType';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
+import { Delete } from '@mui/icons-material';
 import {
   Button,
   Modal,
@@ -37,7 +38,7 @@ function Pages() {
       .then((response) => response.json())
       .then((data) => {
         setElements(data.length > 0 ? data.map((element: ElementType, index: number) => {
-          const properties: unknown = { id: index + 1 };
+          const properties: unknown = { uid: element.id, id: index + 1 };
           element.properties.forEach((property: unknown) => {
             properties[property.name] = property.value;
           });
@@ -99,16 +100,62 @@ function Pages() {
       });
   }
 
+  function deleteElement(params: { row: { id: number } }) {
+    console.log(token);
+    fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/elements/${elements[params.row.id - 1].uid}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.statusCode && data.statusCode !== 200)
+          return;
+        loadElements();
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
+
+  function getKeys() {
+    const keys = [
+      ...(elements.length > 0
+        ? Object.keys(elements[0]).map((key) => ({
+          field: key,
+          headerName: key,
+        }))
+        : []),
+      {
+        field: 'delete',
+        headerName: '',
+        sortable: false,
+        renderCell: (params) => (
+          <Delete onClick={() => deleteElement(params)} />
+        ),
+      },
+    ];
+    delete keys[0];
+
+    return keys;
+  }
+
   return (
     <>
       <Button onClick={() => setOpen(true)}>Add Element</Button>
       <DataGrid
         rows={elements}
-        columns={elements.length > 0 ? Object.keys(elements[0]).map((key, index) => ({
-          field: key,
-          headerName: key,
-          width: index === 0 ? 10 : 200,
-        })) : []}
+        columns={getKeys()}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 10,
+            },
+          },
+        }}
+        pageSizeOptions={[5, 10, 25, 50, 100]}
       />
       <Modal
         open={open}
