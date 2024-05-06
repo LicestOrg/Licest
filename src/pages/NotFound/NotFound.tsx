@@ -1,7 +1,6 @@
 import {
   Button,
   Container,
-  CssBaseline,
   Grid,
   Link,
   Typography,
@@ -10,7 +9,6 @@ import {
 function NotFound() {
   return (
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
       <Grid
         container
         spacing={0}

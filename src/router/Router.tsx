@@ -5,6 +5,8 @@ import Home from '../pages/Home/Home';
 import Login from '../pages/Login/Login';
 import Register from '../pages/Register/Register';
 import NotFound from '../pages/NotFound/NotFound';
+import Page from '../pages/Page/Page';
+import Layout from '../components/Layout/Layout';
 
 function Routes() {
   const { token } = useAuth();
@@ -22,7 +24,11 @@ function Routes() {
       children: [
         {
           path: '/',
-          element: <Home />,
+          element: <Layout><Home /></Layout>,
+        },
+        {
+          path: '/page/:id',
+          element: <Layout><Page /></Layout>,
         },
       ],
     },

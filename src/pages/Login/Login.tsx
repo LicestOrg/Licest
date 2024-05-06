@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   Container,
-  CssBaseline,
   Grid,
   Link,
   TextField,
@@ -69,7 +68,6 @@ function Login() {
 
   return (
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
       <Grid
         container
         spacing={0}
