@@ -1,14 +1,15 @@
-import AuthProvider from './contexts/AuthContext';
-import UserProvider from './contexts/UserContext';
+import { AuthContext, UserContext, ThemeContext } from '@contexts';
 import Router from './router/Router';
 
 function App() {
   return (
-    <AuthProvider>
-      <UserProvider>
-        <Router />
-      </UserProvider>
-    </AuthProvider>
+    <AuthContext>
+      <UserContext>
+        <ThemeContext>
+          <Router />
+        </ThemeContext>
+      </UserContext>
+    </AuthContext>
   );
 }
 

@@ -49,7 +49,6 @@ function Login() {
           return;
         }
 
-        console.log(data);
         setUser({
           id: data.id,
           tag: data.tag,

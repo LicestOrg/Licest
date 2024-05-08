@@ -1,6 +1,6 @@
-import { useAuth, useUser } from '@contexts';
+import { useAuth, useUser, useTheme } from '@contexts';
 import { PageType } from '@types';
-import { Home, Add, Logout } from '@mui/icons-material';
+import { Home, Add, Logout, LightMode, DarkMode } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import {
   Grid,
@@ -21,6 +21,7 @@ import {
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { token, setToken } = useAuth();
+  const { theme, setTheme } = useTheme();
   const { user } = useUser();
 
   const [page, setPage] = useState<PageType[]>([]);
@@ -123,9 +124,14 @@ function Layout({ children }: { children: React.ReactNode }) {
             <Paper elevation={0}>
               <Grid container justifyContent="space-between" alignItems="center">
                 <Typography variant="h4">Licest</Typography>
-                <Button onClick={() => setToken()} variant="contained">
-                  <Logout />
-                </Button>
+                <Grid item>
+                  <Button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+                    {theme === 'light' ? <DarkMode /> : <LightMode />}
+                  </Button>
+                  <Button onClick={() => setToken('')}>
+                    <Logout />
+                  </Button>
+                </Grid>
               </Grid>
             </Paper>
           </Grid>
