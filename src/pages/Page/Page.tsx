@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@contexts';
-import { Table } from '@components/Views';
+import { Table, Gallery } from '@components/Views';
 import { PageViewType } from '@types';
 import NotFound from '../NotFound/NotFound';
 
@@ -36,6 +36,8 @@ function Page() {
   switch (type) {
   case PageViewType.TABLE:
     return <Table />;
+  case PageViewType.GALLERY:
+    return <Gallery />;
   default:
     return <NotFound />;
   }

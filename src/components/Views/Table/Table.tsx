@@ -56,18 +56,6 @@ function Table() {
       delete keys[i];
 
     keys.push({
-      field: 'delete',
-      headerName: '',
-      width: 1,
-      sortable: false,
-      renderCell: (params: { row: { id: number } }) => (
-        <Delete onClick={() => {
-          setSelectedElement(elements[params.row.id - 1]);
-          setOpenDelete(true);
-        }} />
-      ),
-    });
-    keys.push({
       field: 'edit',
       headerName: '',
       width: 1,
@@ -76,6 +64,18 @@ function Table() {
         <Edit onClick={() => {
           setSelectedElement(elements[params.row.id - 1]);
           setOpenEdit(true);
+        }} />
+      ),
+    });
+    keys.push({
+      field: 'delete',
+      headerName: '',
+      width: 1,
+      sortable: false,
+      renderCell: (params: { row: { id: number } }) => (
+        <Delete onClick={() => {
+          setSelectedElement(elements[params.row.id - 1]);
+          setOpenDelete(true);
         }} />
       ),
     });
