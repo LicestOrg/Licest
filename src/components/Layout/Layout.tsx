@@ -1,5 +1,5 @@
 import { useAuth, useUser, useTheme } from '@contexts';
-import { PageType } from '@types';
+import { PageType, ThemeType } from '@types';
 import { Home, Add, Logout, LightMode, DarkMode } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import {
@@ -125,8 +125,8 @@ function Layout({ children }: { children: React.ReactNode }) {
               <Grid container justifyContent="space-between" alignItems="center">
                 <Typography variant="h4">Licest</Typography>
                 <Grid item>
-                  <Button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-                    {theme === 'light' ? <DarkMode /> : <LightMode />}
+                  <Button onClick={() => setTheme(theme === ThemeType.LIGHT ? ThemeType.DARK : ThemeType.LIGHT)}>
+                    {theme === ThemeType.LIGHT ? <DarkMode /> : <LightMode />}
                   </Button>
                   <Button onClick={() => setToken('')}>
                     <Logout />

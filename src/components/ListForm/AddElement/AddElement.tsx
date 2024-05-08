@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@contexts';
+import { PropertyType } from '@types';
 import { Box, Button, MenuItem, Modal, Paper, TextField, Alert } from '@mui/material';
 
 type AddElementProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  elements: unknown[];
+  elements: object[];
   loadElements: () => void;
 };
 
@@ -90,13 +91,14 @@ function AddElement({ open, setOpen, loadElements, elements }: AddElementProps) 
           {elements.length == 0 && Array.from({ length: nbProperties }, (_, index) => (
             <Box key={index} flexDirection="column" gap={1} sx={{ display: 'flex', width: '100%' }}>
               <TextField name={`name-${index}`} label="Name" />
-              <TextField name={`type-${index}`} label="Type" select defaultValue="STRING" value={elements.length == 0 ? 'STRING' : ''}>
-                <MenuItem value="STRING">String</MenuItem>
-                <MenuItem value="NUMBER">Number</MenuItem>
+              <TextField name={`type-${index}`} label="Type" select defaultValue={PropertyType.STRING}>
+                {Object.values(PropertyType).map((type, index) => (
+                  <MenuItem key={index} value={type}>{type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)}</MenuItem>
+                ))}
               </TextField>
               <TextField name={`value-${index}`} label="Value" />
             </Box>
-          )) || Object.keys(elements[0]).slice(2).filter(key => !key.startsWith('type-')).map((key, index) => (
+          )) || Object.keys(elements[0] as object).slice(2).filter(key => !key.startsWith('type-')).map((key, index) => (
             <Box key={index} flexDirection="column" gap={1} sx={{ display: 'flex', width: '100%' }}>
               <TextField name={`value-${index}`} label={key} />
             </Box>

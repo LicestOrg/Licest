@@ -1,13 +1,14 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { ThemeType } from '@types';
 import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 
 type ThemeContextType = {
-  theme: 'light' | 'dark';
-  setTheme: (newTheme: 'light' | 'dark') => void;
+  theme: ThemeType;
+  setTheme: (newTheme: ThemeType) => void;
 };
 
-const ThemeContext = createContext<ThemeContextType>({ theme: 'light', setTheme: () => {} });
+const ThemeContext = createContext<ThemeContextType>({ theme: ThemeType.LIGHT, setTheme: () => {} });
 
 const lightTheme = createTheme();
 
@@ -18,14 +19,14 @@ const darkTheme = createTheme({
 });
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme_] = useState(localStorage.getItem('theme') as 'light' | 'dark' || 'light');
+  const [theme, setTheme_] = useState(localStorage.getItem('theme') as unknown as ThemeType || ThemeType.LIGHT);
 
-  function setTheme(newTheme: 'light' | 'dark') {
+  function setTheme(newTheme: ThemeType) {
     setTheme_(newTheme);
   }
 
   useEffect(() => {
-    localStorage.setItem('theme', theme);
+    localStorage.setItem('theme', theme.toString());
   }, [theme]);
 
   const contextValue = useMemo(() => ({
@@ -35,7 +36,7 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <MuiThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+      <MuiThemeProvider theme={theme === ThemeType.LIGHT ? lightTheme : darkTheme}>
         <CssBaseline />
         {children}
       </MuiThemeProvider>

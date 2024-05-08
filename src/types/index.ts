@@ -1,11 +1,17 @@
 import ElementType from './ElementType';
 import PageType from './PageType';
-import PropertyType from './PropertyType';
 import UserType from './UserType';
 
 export type {
   ElementType,
   PageType,
-  PropertyType,
   UserType
+};
+
+import PropertyType from './PropertyType';
+import ThemeType from './ThemeType';
+
+export {
+  PropertyType,
+  ThemeType
 };

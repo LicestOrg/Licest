@@ -5,9 +5,9 @@ import { Box, Button, Modal, Paper, TextField, Alert } from '@mui/material';
 type DeleteElementProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  elements: unknown[];
+  elements: object[];
   loadElements: () => void;
-  selectedElement: unknown;
+  selectedElement: object;
 };
 
 function DeleteElement({ open, setOpen, loadElements, elements, selectedElement }: DeleteElementProps) {
