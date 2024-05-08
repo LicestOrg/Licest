@@ -8,10 +8,12 @@ export type {
   UserType
 };
 
+import PageViewType from './PageViewType';
 import PropertyType from './PropertyType';
 import ThemeType from './ThemeType';
 
 export {
+  PageViewType,
   PropertyType,
   ThemeType
 };

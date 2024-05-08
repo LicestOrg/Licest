@@ -1,5 +1,5 @@
 import { useAuth, useUser, useTheme } from '@contexts';
-import { PageType, ThemeType } from '@types';
+import { PageType, PageViewType, ThemeType } from '@types';
 import { Home, Add, Logout, LightMode, DarkMode } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import {
@@ -149,35 +149,16 @@ function Layout({ children }: { children: React.ReactNode }) {
         aria-describedby="add-page"
       >
         <Paper style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: 10, width: 300 }}>
-          <Box component="form" onSubmit={addPage} noValidate>
+          <Box component="form" onSubmit={addPage} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="h6" id="modal-modal-title">
               Add Page
             </Typography>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="type"
-              label="Type"
-              name="type"
-              autoComplete="type"
-              defaultValue="TABLE"
-              select
-            >
-              <MenuItem value="TABLE">Table</MenuItem>
-              <MenuItem value="GALLERY">Gallery</MenuItem>
-              <MenuItem value="TODO">Todo</MenuItem>
+            <TextField name="type" label="Type" select defaultValue={PageViewType.TABLE} required>
+              {Object.values(PageViewType).map((type, index) => (
+                <MenuItem key={index} value={type}>{type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)}</MenuItem>
+              ))}
             </TextField>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="title"
-              label="Title"
-              name="title"
-              autoComplete="title"
-              autoFocus
-            />
+            <TextField name="title" label="Title" required />
             {alert && <Alert severity="error">{alertMessage}</Alert>}
             <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
               Add Page
