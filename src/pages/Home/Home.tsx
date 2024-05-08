@@ -1,7 +1,6 @@
-import { useAuth } from '../../contexts/AuthContext';
-import { useUser } from '../../contexts/UserContext';
+import { useAuth, useUser } from '@contexts';
+import { UserType } from '@types';
 import { useState, useEffect } from 'react';
-import UserType from '../../types/UserType';
 import { DataGrid } from '@mui/x-data-grid';
 import { Typography } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';

@@ -1,8 +1,7 @@
-import { useAuth } from '../../contexts/AuthContext';
-import { useUser } from '../../contexts/UserContext';
+import { useAuth, useUser } from '@contexts';
+import { PageType } from '@types';
 import { Home, Add, Logout } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
-import PageType from '../../types/PageType';
 import {
   Grid,
   Paper,

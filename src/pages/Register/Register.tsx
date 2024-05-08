@@ -1,5 +1,4 @@
-import { useAuth } from '../../contexts/AuthContext';
-import { useUser } from '../../contexts/UserContext';
+import { useAuth, useUser } from '@contexts';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Licest from '/licest.svg';

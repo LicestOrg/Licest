@@ -1,6 +1,6 @@
-import { useAuth } from '../../contexts/AuthContext';
-import { AddElement, DeleteElement, EditElement } from '../../components/ListForm';
-import ElementType from '../../types/ElementType';
+import { useAuth } from '@contexts';
+import { AddElement, DeleteElement, EditElement } from '@components/ListForm';
+import { ElementType } from '@types';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';

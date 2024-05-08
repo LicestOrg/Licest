@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '@contexts';
 import { Box, Button, MenuItem, Modal, Paper, TextField, Alert } from '@mui/material';
 
 type AddElementProps = {
