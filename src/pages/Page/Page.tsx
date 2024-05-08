@@ -4,7 +4,7 @@ import ElementType from '../../types/ElementType';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Delete } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import {
   Button,
   Modal,
@@ -18,8 +18,9 @@ function Pages() {
   const { token } = useAuth();
   const { user } = useUser();
 
-  const [elements, setElements] = useState<unknown[]>([]);
-  const [open, setOpen] = useState(false);
+  const [elements, setElements] = useState<object[]>([]);
+  const [openModalAddElement, setOpenModalAddElement] = useState(false);
+  const [openModalEditElement, setOpenModalEditElement] = useState(false);
 
   const [nbProperties, setNbProperties] = useState(1);
   const [alert, setAlert] = useState(false);
@@ -38,8 +39,8 @@ function Pages() {
       .then((response) => response.json())
       .then((data) => {
         setElements(data.length > 0 ? data.map((element: ElementType, index: number) => {
-          const properties: unknown = { uid: element.id, id: index + 1 };
-          element.properties.forEach((property: unknown) => {
+          const properties: object = { uid: element.id, id: index + 1 };
+          element.properties.forEach((property) => {
             properties[property.name] = property.value;
           });
           return properties;
@@ -54,9 +55,9 @@ function Pages() {
     loadElements();
   }, [user]);
 
-  function closeModal(event: React.FormEvent) {
+  function closeModalAddElement(event: React.FormEvent) {
     event.preventDefault();
-    setOpen(false);
+    setOpenModalAddElement(false);
     setNbProperties(1);
   }
 
@@ -76,11 +77,15 @@ function Pages() {
       body: JSON.stringify({
         pageId: id,
         name: 'Element',
-        properties: Array.from({ length: nbProperties }, (_, index) => ({
+        properties: (elements.length == 0 ? Array.from({ length: nbProperties }, (_, index) => ({
           type: 'STRING',
           name: data[`name${index}`],
           value: data[`value${index}`],
-        })),
+        })) : Object.keys(elements[0]).slice(2).map((key, index) => ({
+          type: 'STRING',
+          name: key,
+          value: data[`value${index}`],
+        }))),
       }),
     })
       .then((response) => response.json())
@@ -91,7 +96,50 @@ function Pages() {
           return;
         }
 
-        closeModal(event);
+        closeModalAddElement(event);
+        loadElements();
+      })
+      .catch((error) => {
+        setAlert(true);
+        setAlertMessage(error.message);
+      });
+  }
+
+  function closeModalEditElement(event: React.FormEvent) {
+    event.preventDefault();
+    setOpenModalEditElement(false);
+  }
+
+  function editElement(event: React.FormEvent) {
+    event.preventDefault();
+    setAlert(false);
+
+    const formData = new FormData(event.target as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
+
+    fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/elements/${elements[0].uid}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        properties: Object.keys(elements[0]).slice(2).map((key, index) => ({
+          type: 'STRING',
+          name: key,
+          value: data[`value${index}`],
+        })),
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.statusCode && data.statusCode !== 200) {
+          setAlert(true);
+          setAlertMessage(data.message);
+          return;
+        }
+
+        closeModalEditElement(event);
         loadElements();
       })
       .catch((error) => {
@@ -101,7 +149,6 @@ function Pages() {
   }
 
   function deleteElement(params: { row: { id: number } }) {
-    console.log(token);
     fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/elements/${elements[params.row.id - 1].uid}`, {
       method: 'DELETE',
       headers: {
@@ -129,10 +176,20 @@ function Pages() {
         }))
         : []),
       {
+        field: 'edit',
+        headerName: '',
+        width: 1,
+        sortable: false,
+        renderCell: () => (
+          <Edit onClick = {() => setOpenModalEditElement(true)} />
+        ),
+      },
+      {
         field: 'delete',
         headerName: '',
+        width: 1,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params: { row: { id: number } }) => (
           <Delete onClick={() => deleteElement(params)} />
         ),
       },
@@ -144,34 +201,36 @@ function Pages() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Add Element</Button>
-      <DataGrid
-        rows={elements}
-        columns={getKeys()}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
-            },
-          },
-        }}
-        pageSizeOptions={[5, 10, 25, 50, 100]}
-      />
+      <Button onClick={() => setOpenModalAddElement(true)}>Add Element</Button>
+      {elements.length > 0 && (
+        <DataGrid
+          rows={elements}
+          columns={getKeys()}
+          pageSize={5}
+          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+        />
+      )}
       <Modal
-        open={open}
-        onClose={closeModal}
+        open={openModalAddElement}
+        onClose={closeModalAddElement}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Paper sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, p: 2 }}>
           <Box component="form" onSubmit={addElement} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {Array.from({ length: nbProperties }, (_, index) => (
+            {elements.length == 0 && Array.from({ length: nbProperties }, (_, index) => (
               <Box key={index} flexDirection="column" gap={1} sx={{ display: 'flex', width: '100%' }}>
                 <TextField name={`name${index}`} label="Name" />
                 <TextField name={`value${index}`} label="Value" />
               </Box>
+            )) || Object.keys(elements[0]).slice(2).map((key, index) => (
+              <Box key={index} flexDirection="column" gap={1} sx={{ display: 'flex', width: '100%' }}>
+                <TextField name={`value${index}`} label={key} />
+              </Box>
             ))}
-            {nbProperties < 10 && <Button onClick={() => setNbProperties(nbProperties + 1)}>Add Property</Button>}
+
+            {elements.length == 0 && nbProperties < 10 && <Button onClick={() => setNbProperties(nbProperties + 1)}>Add Property</Button>}
+            {elements.length == 0 && nbProperties > 1 && <Button onClick={() => setNbProperties(nbProperties - 1)}>Remove Property</Button>}
             {alert && <Alert severity="error">{alertMessage}</Alert>}
             <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
               Add Element
@@ -179,6 +238,28 @@ function Pages() {
           </Box>
         </Paper>
       </Modal>
+      {elements.length > 0 && (
+        <Modal
+          open={openModalEditElement}
+          onClose={closeModalEditElement}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Paper sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, p: 2 }}>
+            <Box component="form" onSubmit={editElement} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {Object.keys(elements[0]).slice(2).map((key, index) => (
+                <Box key={index} flexDirection="column" gap={1} sx={{ display: 'flex', width: '100%' }}>
+                  <TextField name={`value${index}`} label={key} />
+                </Box>
+              ))}
+              {alert && <Alert severity="error">{alertMessage}</Alert>}
+              <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+              Edit Element
+              </Button>
+            </Box>
+          </Paper>
+        </Modal>
+      )}
     </>
   );
 }
