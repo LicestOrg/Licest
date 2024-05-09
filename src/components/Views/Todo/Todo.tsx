@@ -1,6 +1,6 @@
 import { useAuth } from '@contexts';
 import { AddElement, DeleteElement, EditElement } from '@components/ListForm';
-import { ElementType } from '@types';
+import { ElementType, PropertyValueType } from '@types';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Grid, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
@@ -45,15 +45,12 @@ function Todo() {
   }, []);
 
   return (
-    <>
-      <p className="italic font-light text-sm text-gray-500">
-        *Set a tag state and a tag name to set the title
-      </p>
+    <div className="overflow-hidden">
       <Button onClick={() => setOpenAdd(true)}>Add Element</Button>
 
       <Grid container spacing={2} columns={states.length} overflow="scroll" wrap="nowrap" margin="10px">
         {states.map((state, index) => (
-          <Grid item key={index} sx={{ minWidth: '400px' }}>
+          <Grid item key={index}>
             <h2 className="text-xl font-bold">{state}</h2>
             <List>
               {elements.filter((element: ElementType) => element.properties[0].value === state).map((element, index) => (
@@ -62,7 +59,7 @@ function Todo() {
                     setSelectedElement(index);
                     setOpenEdit(true);
                   }}>
-                    <ListItemText primary={element.name} secondary={element.properties[1].value} />
+                    <ListItemText primary={element.properties[1].value} secondary={element.properties[2].value} />
                   </ListItemButton>
                   <div className="flex height-full">
                     <ListItemButton onClick={() => {
@@ -85,10 +82,14 @@ function Todo() {
         ))}
       </Grid>
 
-      <AddElement open={openAdd} setOpen={setOpenAdd} elements={elements} loadElements={loadElements} />
+      <AddElement open={openAdd} setOpen={setOpenAdd} elements={elements} loadElements={loadElements} defaultProperties={[
+        { type: PropertyValueType.STRING, name: 'State', required: true },
+        { type: PropertyValueType.STRING, name: 'Title', required: true },
+        { type: PropertyValueType.STRING, name: 'Description' },
+      ]} />
       <DeleteElement open={openDelete} setOpen={setOpenDelete} elements={elements} loadElements={loadElements} idElement={selectedElement} />
       <EditElement open={openEdit} setOpen={setOpenEdit} elements={elements} loadElements={loadElements} idElement={selectedElement} />
-    </>
+    </div>
   );
 }
 
