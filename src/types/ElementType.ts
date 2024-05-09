@@ -4,15 +4,7 @@ type ElementType = {
   id: number;
   pageId: string;
   name: string;
-  properties: [
-    {
-      id: number;
-      elementId: number;
-      type: PropertyType;
-      name: string;
-      value: string;
-    }
-  ];
+  properties: PropertyType[];
   createdAt: string;
   updatedAt: string;
 };

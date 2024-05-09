@@ -1,6 +1,6 @@
 import { useAuth } from '@contexts';
 import { AddElement, DeleteElement, EditElement } from '@components/ListForm';
-import { ElementType } from '@types';
+import { ElementType, PropertyValueType } from '@types';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, IconButton, ImageListItem, ImageListItemBar } from '@mui/material';
@@ -13,7 +13,8 @@ function Gallery() {
   const { id } = useParams();
 
   const [elements, setElements] = useState<ElementType[]>([]);
-  const [selectedElement, setSelectedElement] = useState<object>({});
+
+  const [selectedElement, setSelectedElement] = useState<number>(0);
   const [openAdd, setOpenAdd] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -28,15 +29,7 @@ function Gallery() {
     })
       .then((response) => response.json())
       .then((data) => {
-        setElements(data.map((element: ElementType, index: number) => {
-          const properties: object = { uid: element.id };
-          element.properties.forEach((property) => {
-            properties[`type-${index}`] = property.type;
-            properties[property.name] = property.value;
-          });
-          return properties;
-
-        }));
+        setElements(data);
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -49,26 +42,23 @@ function Gallery() {
 
   return (
     <>
-      <p className="italic font-light text-sm text-gray-500">
-        *Set a tag url to set the image and a tag name to set the title
-      </p>
       <Button onClick={() => setOpenAdd(true)}>Add Element</Button>
 
       <Masonry columns={3} spacing={1}>
-        {elements.map((element) => (
-          <div key={element.uid} onClick={() => {
-            setSelectedElement(element);
+        {elements.map((element, index) => (
+          <div key={element.id} onClick={() => {
+            setSelectedElement(index);
             setOpenEdit(true);
           }}>
-            <ImageListItem key={element.uid}>
-              <img src={element.url || ''} alt={element.name || ''} />
+            <ImageListItem key={element.id}>
+              <img src={element.properties[0].value || ''} alt={element.name || ''} />
               <ImageListItemBar
-                title={element.name}
-                subtitle={element.description}
+                title={element.properties[1].value}
+                subtitle={element.properties[2].value}
                 actionIcon={
                   <IconButton onClick={(event) => {
                     event.stopPropagation();
-                    setSelectedElement(element);
+                    setSelectedElement(index);
                     setOpenDelete(true);
                   }}>
                     <Delete />
@@ -80,9 +70,13 @@ function Gallery() {
         ))}
       </Masonry>
 
-      <AddElement open={openAdd} setOpen={setOpenAdd} elements={elements} loadElements={loadElements} />
-      <DeleteElement open={openDelete} setOpen={setOpenDelete} elements={elements} loadElements={loadElements} selectedElement={selectedElement} />
-      <EditElement open={openEdit} setOpen={setOpenEdit} elements={elements} loadElements={loadElements} selectedElement={selectedElement} />
+      <AddElement open={openAdd} setOpen={setOpenAdd} elements={elements} loadElements={loadElements} defaultProperties={[
+        { type: PropertyValueType.STRING, name: 'Url', required: true },
+        { type: PropertyValueType.STRING, name: 'Title', required: true },
+        { type: PropertyValueType.STRING, name: 'Description' },
+      ]} />
+      <DeleteElement open={openDelete} setOpen={setOpenDelete} elements={elements} loadElements={loadElements} idElement={selectedElement} />
+      <EditElement open={openEdit} setOpen={setOpenEdit} elements={elements} loadElements={loadElements} idElement={selectedElement} />
     </>
   );
 }

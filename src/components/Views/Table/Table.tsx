@@ -12,9 +12,12 @@ function Table() {
 
   const { id } = useParams();
 
-  const [elements, setElements] = useState<object[]>([]);
+  const [elements, setElements] = useState<ElementType[]>([]);
+
+  const [elementsProperties, setElementsProperties] = useState<object[]>([]);
   const [keys, setKeys] = useState<GridColDef[]>([]);
-  const [selectedElement, setSelectedElement] = useState<object>({});
+
+  const [selectedElement, setSelectedElement] = useState<number>(0);
   const [openAdd, setOpenAdd] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -29,14 +32,14 @@ function Table() {
     })
       .then((response) => response.json())
       .then((data) => {
-        setElements(data.length > 0 ? data.map((element: ElementType, index: number) => {
-          const properties: object = { uid: element.id, id: index + 1 };
+        setElements(data);
+        setElementsProperties(data.map((element: ElementType, index: number) => {
+          const properties: { [key: string]: string } = { id: (index + 1).toString() };
           element.properties.forEach((property) => {
-            properties[`type-${index}`] = property.type;
             properties[property.name] = property.value;
           });
           return properties;
-        }) : []);
+        }));
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -44,43 +47,36 @@ function Table() {
   }
 
   function getKeys() {
-    if (elements.length === 0)
-      return [];
-
-    const keys = Object.keys(elements[0]).map((key) => ({
-      field: key,
-      headerName: key,
-    }));
-
-    for (let i = 0; i < keys.length; i += 2)
-      delete keys[i];
-
-    keys.push({
-      field: 'edit',
-      headerName: '',
-      width: 1,
-      sortable: false,
-      renderCell: (params: { row: { id: number } }) => (
-        <Edit onClick={() => {
-          setSelectedElement(elements[params.row.id - 1]);
-          setOpenEdit(true);
-        }} />
-      ),
-    });
-    keys.push({
-      field: 'delete',
-      headerName: '',
-      width: 1,
-      sortable: false,
-      renderCell: (params: { row: { id: number } }) => (
-        <Delete onClick={() => {
-          setSelectedElement(elements[params.row.id - 1]);
-          setOpenDelete(true);
-        }} />
-      ),
-    });
-
-    return keys;
+    return elementsProperties.length > 0 ? [
+      ...Object.keys(elementsProperties[0]).map((key) => ({
+        field: key,
+        headerName: key,
+      })),
+      {
+        field: 'edit',
+        headerName: '',
+        width: 1,
+        sortable: false,
+        renderCell: (params: { row: { id: number } }) => (
+          <Edit onClick={() => {
+            setSelectedElement(params.row.id - 1);
+            setOpenEdit(true);
+          }} />
+        ),
+      },
+      {
+        field: 'delete',
+        headerName: '',
+        width: 1,
+        sortable: false,
+        renderCell: (params: { row: { id: number } }) => (
+          <Delete onClick={() => {
+            setSelectedElement(params.row.id - 1);
+            setOpenDelete(true);
+          }} />
+        ),
+      },
+    ] : [];
   }
 
   useEffect(() => {
@@ -89,14 +85,14 @@ function Table() {
 
   useEffect(() => {
     setKeys(getKeys());
-  }, [elements]);
+  }, [elementsProperties]);
 
   return (
     <>
       <Button onClick={() => setOpenAdd(true)}>Add Element</Button>
-      {elements.length > 0 && keys.length > 0 && (
+      {elementsProperties.length > 0 && keys.length > 0 && (
         <DataGrid
-          rows={elements}
+          rows={elementsProperties}
           columns={keys}
           initialState={{
             pagination: {
@@ -109,8 +105,8 @@ function Table() {
         />
       )}
       <AddElement open={openAdd} setOpen={setOpenAdd} elements={elements} loadElements={loadElements} />
-      <DeleteElement open={openDelete} setOpen={setOpenDelete} elements={elements} loadElements={loadElements} selectedElement={selectedElement} />
-      <EditElement open={openEdit} setOpen={setOpenEdit} elements={elements} loadElements={loadElements} selectedElement={selectedElement} />
+      <DeleteElement open={openDelete} setOpen={setOpenDelete} elements={elements} loadElements={loadElements} idElement={selectedElement} />
+      <EditElement open={openEdit} setOpen={setOpenEdit} elements={elements} loadElements={loadElements} idElement={selectedElement} />
     </>
   );
 }

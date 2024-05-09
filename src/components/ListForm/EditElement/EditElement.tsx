@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useAuth } from '@contexts';
+import { ElementType } from '@types';
 import { Box, Button, Modal, Paper, TextField, Alert } from '@mui/material';
 
 type EditElementProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  elements: object[];
+  elements: ElementType[];
   loadElements: () => void;
-  selectedElement: object;
+  idElement: number;
 };
 
-function EditElement({ open, setOpen, loadElements, elements, selectedElement  }: EditElementProps) {
+function EditElement({ open, setOpen, loadElements, elements, idElement  }: EditElementProps) {
 
   const { token } = useAuth();
 
@@ -29,16 +30,16 @@ function EditElement({ open, setOpen, loadElements, elements, selectedElement  }
     const formData = new FormData(event.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
 
-    fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/elements/${selectedElement.uid}`, {
+    fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/elements/${elements[idElement].id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
-        properties: Object.keys(elements[0]).slice(2).filter(key => !key.startsWith('type-')).map((key, index) => ({
-          type: elements[0][`type-${index}`],
-          name: key,
+        properties: elements[0].properties.map((key, index) => ({
+          type: key.type,
+          name: key.name,
           value: data[`value-${index}`],
         })),
       }),
@@ -60,7 +61,7 @@ function EditElement({ open, setOpen, loadElements, elements, selectedElement  }
       });
   }
 
-  return elements.length > 0 ? (
+  return open && elements.length > 0 ? (
     <Modal
       open={open}
       onClose={close}
@@ -69,9 +70,9 @@ function EditElement({ open, setOpen, loadElements, elements, selectedElement  }
     >
       <Paper sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, p: 2 }}>
         <Box component="form" onSubmit={editElement} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {Object.keys(elements[0]).slice(2).filter(key => !key.startsWith('type-')).map((key, index) => (
+          {elements[idElement].properties.map((key, index) => (
             <Box key={index} flexDirection="column" gap={1} sx={{ display: 'flex', width: '100%' }}>
-              <TextField name={`value-${index}`} label={key} />
+              <TextField name={`value-${index}`} label={key.name} defaultValue={key.value} />
             </Box>
           ))}
           {alert && <Alert severity="error">{alertMessage}</Alert>}

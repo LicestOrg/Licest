@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useAuth } from '@contexts';
+import { ElementType } from '@types';
 import { Box, Button, Modal, Paper, TextField, Alert } from '@mui/material';
 
 type DeleteElementProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  elements: object[];
+  elements: ElementType[];
   loadElements: () => void;
-  selectedElement: object;
+  idElement: number;
 };
 
-function DeleteElement({ open, setOpen, loadElements, elements, selectedElement }: DeleteElementProps) {
+function DeleteElement({ open, setOpen, loadElements, elements, idElement }: DeleteElementProps) {
 
   const { token } = useAuth();
 
@@ -26,7 +27,7 @@ function DeleteElement({ open, setOpen, loadElements, elements, selectedElement 
     event.preventDefault();
     setAlert(false);
 
-    fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/elements/${selectedElement.uid}`, {
+    fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/elements/${elements[idElement].id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ function DeleteElement({ open, setOpen, loadElements, elements, selectedElement 
       });
   }
 
-  return elements.length > 0 ? (
+  return open && elements.length > 0 ? (
     <Modal
       open={open}
       onClose={close}
@@ -59,9 +60,9 @@ function DeleteElement({ open, setOpen, loadElements, elements, selectedElement 
     >
       <Paper sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, p: 2 }}>
         <Box component="form" onSubmit={editElement} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {Object.keys(elements[0]).slice(2).filter(key => !key.startsWith('type-')).map((key, index) => (
+          {elements[0].properties.map((key, index) => (
             <Box key={index} flexDirection="column" gap={1} sx={{ display: 'flex', width: '100%' }}>
-              <TextField name={`value-${index}`} label={key} value={selectedElement[key]} disabled />
+              <TextField name={`value-${index}`} label={key.name} value={key.value} disabled />
             </Box>
           ))}
           <Button type="submit" variant="contained">Delete</Button>
