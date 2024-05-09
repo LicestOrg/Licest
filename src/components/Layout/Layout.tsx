@@ -1,6 +1,6 @@
 import { useAuth, useUser, useTheme } from '@contexts';
 import { PageType, PageViewType, ThemeType } from '@types';
-import { Home, Add, Logout, LightMode, DarkMode } from '@mui/icons-material';
+import { Home, Add, PersonOff, Logout, LightMode, DarkMode } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import {
   Grid,
@@ -93,6 +93,30 @@ function Layout({ children }: { children: React.ReactNode }) {
       });
   }
 
+  function deleteAccount() {
+    fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/users/${user?.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.statusCode && data.statusCode !== 200) {
+          setAlert(true);
+          setAlertMessage(data.message);
+          return;
+        }
+
+        setToken();
+      })
+      .catch((error) => {
+        setAlert(true);
+        setAlertMessage(error.message);
+      });
+  }
+
   return (
     <>
       <Grid container spacing={2}>
@@ -128,7 +152,10 @@ function Layout({ children }: { children: React.ReactNode }) {
                   <Button onClick={() => setTheme(theme === ThemeType.LIGHT ? ThemeType.DARK : ThemeType.LIGHT)}>
                     {theme === ThemeType.LIGHT ? <DarkMode /> : <LightMode />}
                   </Button>
-                  <Button onClick={() => setToken('')}>
+                  <Button onClick={deleteAccount}>
+                    <PersonOff />
+                  </Button>
+                  <Button onClick={() => setToken()}>
                     <Logout />
                   </Button>
                 </Grid>
