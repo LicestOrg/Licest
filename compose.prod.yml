@@ -8,9 +8,22 @@ services:
       target: production
     restart: always
     environment:
+      API_PORT: ${API_PORT}
+      FRONTEND_PORT: ${FRONTEND_PORT}
+      JWT_SECRET: ${JWT_SECRET}
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public"
     ports:
-      - ${API_PORT}:3000
+      - ${API_PORT}:${API_PORT}
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: always
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    depends_on:
+      - api
