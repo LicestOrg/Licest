@@ -33,6 +33,7 @@ sudo docker compose -f compose.yml up
 Start the api server
 ```bash
 cd api
+npx prisma migrate dev --name init # Only the first time
 npm ci
 npm run start:dev
 ```
